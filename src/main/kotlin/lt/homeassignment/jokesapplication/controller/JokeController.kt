@@ -31,7 +31,7 @@ class JokesController(private val jokeService: JokeService) {
         ))
     }
 
-    @GetMapping("/random")
+    @GetMapping("/")
     fun getJoke(@RequestParam(required = false) category: String?): ResponseEntity<Joke> {
         return ResponseEntity.ok( Joke(
             id = "Why did the chicken cross the road?",
