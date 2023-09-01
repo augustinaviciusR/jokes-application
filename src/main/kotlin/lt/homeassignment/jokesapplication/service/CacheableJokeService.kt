@@ -95,6 +95,8 @@ class CacheableJokeService(
             ?: throw JokeApiException("No cached jokes available for category: $category")
     }
 
+    //Avoiding the use of the cache for this method, query string is a free text field
+    // Thus it would take too much effort to implement cache which would provide any value
     override fun searchForJokes(query: String): JokeSearchResult {
         logger.debug("Searching for jokes with query: $query")
         return jokeProvider.searchForJokes(query.lowercase())
