@@ -27,9 +27,8 @@ class ChuckNorrisJokeApiTest {
         updatedAt = LocalDateTime.now(),
     )
 
-    private val testJokeResult = JokeSearchResult(
-        total = 1,
-        result = listOf(
+    private val testJokeSearchResult = JokeSearchResult(
+        total = 1, result = listOf(
             Joke(
                 id = "Why did the chicken cross the road?",
                 iconUrl = "To get to the other side",
@@ -53,8 +52,7 @@ class ChuckNorrisJokeApiTest {
         val categories = listOf("tech", "science")
         every {
             commonHttpClient.executeRequest(
-                "$testURL/categories",
-                Array<String>::class.java
+                "$testURL/categories", Array<String>::class.java
             )
         } returns categories.toTypedArray()
 
@@ -69,7 +67,7 @@ class ChuckNorrisJokeApiTest {
 
         val result = chuckNorrisJokeApi.getRandomJoke(null)
 
-        assertEquals(categories.toSortedSet(), result)
+        assertEquals(testJoke, result)
     }
 
     @Test
@@ -77,23 +75,26 @@ class ChuckNorrisJokeApiTest {
         val testCategory = categories.random()
         every {
             commonHttpClient.executeRequest(
-                "$testURL/random?category$testCategory",
-                Joke::class.java
+                "$testURL/random?category=$testCategory", Joke::class.java
             )
         } returns testJoke
 
         val result = chuckNorrisJokeApi.getRandomJoke(testCategory)
 
-        assertEquals(categories.toSortedSet(), result)
+        assertEquals(testJoke, result)
     }
 
     @Test
     fun `test searchForJokes`() {
         val query = "some random query"
-        every { commonHttpClient.executeRequest("$testURL/search?&query=$query", JokeSearchResult::class.java) } returns testJokeResult
+        every {
+            commonHttpClient.executeRequest(
+                "$testURL/search?&query=$query", JokeSearchResult::class.java
+            )
+        } returns testJokeSearchResult
 
         val result = chuckNorrisJokeApi.searchForJokes(query)
 
-        assertEquals(categories.toSortedSet(), result)
+        assertEquals(testJokeSearchResult, result)
     }
 }

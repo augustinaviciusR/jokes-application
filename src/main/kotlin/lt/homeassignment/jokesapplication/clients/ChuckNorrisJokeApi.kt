@@ -12,35 +12,15 @@ class ChuckNorrisJokeApi(
     private val commonHttpClient: CommonHttpClient): JokeProvider {
 
     override fun listJokeCategories(): Set<String> {
-        return setOf()
+        return commonHttpClient.executeRequest("$url/categories", Array<String>::class.java).toSortedSet()
     }
 
     override fun getRandomJoke(category: String?): Joke {
-        return Joke(
-            id = "Why did the chicken cross the road?",
-            iconUrl = "To get to the other side",
-            url = "https://example.com/joke/1",
-            value = "some wort of joke",
-            categories = listOf("pun"),
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now(),
-        )
+        val formedURL = if (category.isNullOrEmpty()) "$url/random" else "$url/random?category=$category"
+        return commonHttpClient.executeRequest(formedURL, Joke::class.java)
     }
 
     override fun searchForJokes(query: String): JokeSearchResult {
-        return JokeSearchResult(
-            total = 1,
-            result = listOf(
-                Joke(
-                    id = "Why did the chicken cross the road?",
-                    iconUrl = "To get to the other side",
-                    url = "https://example.com/joke/1",
-                    value = "some wort of joke",
-                    categories = listOf("pun"),
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                )
-            )
-        )
+        return commonHttpClient.executeRequest("$url/search?&query=$query", JokeSearchResult::class.java)
     }
 }
