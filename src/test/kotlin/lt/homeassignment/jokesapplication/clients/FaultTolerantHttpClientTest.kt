@@ -1,7 +1,5 @@
 package lt.homeassignment.jokesapplication.clients
 
-import io.github.resilience4j.circuitbreaker.CircuitBreaker
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry
 import io.mockk.every
 import io.mockk.mockk
 import lt.homeassignment.jokesapplication.model.JokeApiRateLimitException
@@ -39,7 +37,9 @@ class FaultTolerantHttpClientTest {
         val responseType = String::class.java
         val expectedResponse = "This is a joke"
 
-        every { restOperations.getForEntity(testURL, responseType) } returns ResponseEntity(expectedResponse, HttpStatus.OK)
+        every {
+            restOperations.getForEntity(testURL, responseType)
+        } returns ResponseEntity(expectedResponse, HttpStatus.OK)
         every { retryHandler.executeWithRetry<String>(any()) } answers { firstArg<() -> String>().invoke() }
         every { mockClock.instant() } returns Instant.parse("2023-09-01T10:00:00.00Z")
 
@@ -51,7 +51,9 @@ class FaultTolerantHttpClientTest {
     fun `test executeRequest throws JokeApiRateLimitException for rate-limited request`() {
         val responseType = String::class.java
 
-        every { restOperations.getForEntity(testURL, responseType) } returns ResponseEntity("Rate limit Test", HttpStatus.TOO_MANY_REQUESTS)
+        every {
+            restOperations.getForEntity(testURL, responseType)
+        } returns ResponseEntity("Rate limit Test", HttpStatus.TOO_MANY_REQUESTS)
         every { retryHandler.executeWithRetry<String>(any()) } throws JokeApiRateLimitException("Rate limit reached")
         every { mockClock.instant() } returns Instant.parse("2023-09-01T10:00:00.00Z")
 
@@ -69,15 +71,21 @@ class FaultTolerantHttpClientTest {
         every { mockClock.instant() } returns Instant.parse("2023-09-01T10:00:00.00Z")
 
         // First request to set the nextAllowedRequestTime
-        every { restOperations.getForEntity(testURL, responseType) } returns ResponseEntity("Rate limit Test", HttpHeaders().apply {
-            this.set("Retry-After", "5")
-        }, HttpStatus.TOO_MANY_REQUESTS)
-
+        every { restOperations.getForEntity(testURL, responseType) } returns ResponseEntity(
+            "Rate limit Test",
+            HttpHeaders().apply {
+                this.set("Retry-After", "5")
+            },
+            HttpStatus.TOO_MANY_REQUESTS
+        )
         assertThrows(JokeApiRateLimitException::class.java) {
             faultTolerantHttpClient.executeRequest(testURL, responseType)
         }
 
-        every { restOperations.getForEntity(testURL, responseType) } returns ResponseEntity(expectedResponse, HttpStatus.OK)
+        every { restOperations.getForEntity(testURL, responseType) } returns ResponseEntity(
+            expectedResponse,
+            HttpStatus.OK
+        )
         every { mockClock.instant() } returns Instant.parse("2023-09-01T10:00:15.00Z")
 
         val actualResponse = faultTolerantHttpClient.executeRequest(testURL, responseType)

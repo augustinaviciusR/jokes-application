@@ -63,7 +63,7 @@ class ApplicationConfig {
     }
 
     @Bean
-    fun faultTolerantHttpClientRetry(circuitBreakerRegistry: CircuitBreakerRegistry): Retry {
+    fun faultTolerantHttpClientRetry(): Retry {
         val retryConfig = RetryConfig.custom<Any>()
             .maxAttempts(MAX_RETRY_ATTEMPTS)
             .intervalFunction { attempt ->
@@ -75,12 +75,10 @@ class ApplicationConfig {
         return Retry.of("faultTolerantHttpClientRetry", retryConfig)
     }
 
-
     @Bean
     fun clock(): Clock {
         return Clock.systemUTC()
     }
-
 
     companion object {
         const val CIRCUIT_BREAKER_FAILURE_RATE_THRESHOLD = 50.0f

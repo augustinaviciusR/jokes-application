@@ -17,7 +17,7 @@ interface RetryHandler {
     fun <T> executeWithRetry(supplier: () -> T): T
 }
 
-// Decided to extract the retry logic to a separate class as it's configurable component and makes unit test too complicated
+// Extracted the retry logic to a separate class as it's configurable component and makes unit test too complicated
 // BDD tests will cover actual retrying logic
 @Component
 class RealRetryHandler(private val retry: Retry, private val circuitBreaker: CircuitBreaker) : RetryHandler {
@@ -28,7 +28,6 @@ class RealRetryHandler(private val retry: Retry, private val circuitBreaker: Cir
         ).apply()
     }
 }
-
 
 @Component
 class FaultTolerantHttpClient(
@@ -46,12 +45,11 @@ class FaultTolerantHttpClient(
         }
 
         return retryHandler.executeWithRetry {
-                val response = restOperations.getForEntity(url, responseType)
-                logUrlAndStatusCode(url, response)
-                handleResponseStatus(url, response)
-
-                response.body ?: throw JokeApiBadRequestException("API responded with empty body")
-            }
+            val response = restOperations.getForEntity(url, responseType)
+            logUrlAndStatusCode(url, response)
+            handleResponseStatus(url, response)
+            response.body ?: throw JokeApiBadRequestException("API responded with empty body")
+        }
     }
 
     private fun <T> handleResponseStatus(url: String, response: ResponseEntity<T>) {
@@ -61,6 +59,7 @@ class FaultTolerantHttpClient(
                 handleRateLimit(response)
                 throw JokeApiRateLimitException("Rate limit exceeded for $url.")
             }
+
             else -> throw JokeApiException("API responded with status code: ${response.statusCode}")
         }
     }
