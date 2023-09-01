@@ -1,19 +1,19 @@
 package lt.homeassignment.jokesapplication.service
 
 
+import com.ninjasquad.springmockk.clear
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import lt.homeassignment.jokesapplication.clients.JokeProvider
 import lt.homeassignment.jokesapplication.model.Joke
 import lt.homeassignment.jokesapplication.model.JokeSearchResult
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-
 
 internal class CacheableJokeServiceTest {
 
@@ -34,8 +34,20 @@ internal class CacheableJokeServiceTest {
 
         val result = cacheableJokeService.listAvailableCategories()
 
+       assertEquals(categories, result)
+    }
+
+    @Test
+    fun `test listAvailableCategories prefil caches if empty`() {
+        cacheableJokeService.getCachedCategories().set(setOf())
+        val categories = setOf("tech", "science")
+        every { jokeProvider.listJokeCategories() } returns categories
+
+        val result = cacheableJokeService.listAvailableCategories()
+
         assertEquals(categories, result)
     }
+
 
     @Test
     fun `test getJoke with category`() {

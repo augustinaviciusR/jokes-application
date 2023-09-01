@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.LocalDateTime
 
+class JokeApiException(message: String) : RuntimeException(message)
+
 data class JokeSearchResult(
     @JsonProperty("total")
     val total: Int,
