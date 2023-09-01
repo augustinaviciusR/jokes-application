@@ -19,7 +19,7 @@ import kotlin.test.Test
 class FaultTolerantHttpClientTest {
 
     private lateinit var restOperations: RestOperations
-    private lateinit var circuitBreakerRegistry: CircuitBreakerRegistry
+    private lateinit var retryHandler: RetryHandler // Your new interface
     private lateinit var mockClock: Clock
     private lateinit var faultTolerantHttpClient: FaultTolerantHttpClient
 
@@ -28,35 +28,31 @@ class FaultTolerantHttpClientTest {
     @BeforeEach
     fun setUp() {
         restOperations = mockk()
-        circuitBreakerRegistry = mockk()
+        retryHandler = mockk() // Mock the new interface
         mockClock = mockk()
-        faultTolerantHttpClient = FaultTolerantHttpClient(restOperations, circuitBreakerRegistry, mockClock)
 
-        val circuitBreaker: CircuitBreaker = mockk(relaxed = true)
-        every { circuitBreakerRegistry.circuitBreaker("faultTolerantHttpClientClientBreaker") } returns circuitBreaker
-        faultTolerantHttpClient.init()
+        faultTolerantHttpClient = FaultTolerantHttpClient(restOperations, retryHandler, mockClock)
     }
 
     @Test
     fun `test executeRequest returns expected value`() {
         val responseType = String::class.java
         val expectedResponse = "This is a joke"
-        val responseEntity = ResponseEntity(expectedResponse, HttpStatus.OK)
 
-        every { restOperations.getForEntity(testURL, responseType) } returns responseEntity
+        every { restOperations.getForEntity(testURL, responseType) } returns ResponseEntity(expectedResponse, HttpStatus.OK)
+        every { retryHandler.executeWithRetry<String>(any()) } answers { firstArg<() -> String>().invoke() }
         every { mockClock.instant() } returns Instant.parse("2023-09-01T10:00:00.00Z")
 
         val actualResponse = faultTolerantHttpClient.executeRequest(testURL, responseType)
-
         assertEquals(expectedResponse, actualResponse)
     }
 
     @Test
-    fun `test executeRequest throws JokeApiRateLimitException for rate-limited request if Retry-After doesn't exist`() {
+    fun `test executeRequest throws JokeApiRateLimitException for rate-limited request`() {
         val responseType = String::class.java
-        val rateLimitedResponse = ResponseEntity<String>("Rate limit Test", HttpStatus.TOO_MANY_REQUESTS)
 
-        every { restOperations.getForEntity(testURL, responseType) } returns rateLimitedResponse
+        every { restOperations.getForEntity(testURL, responseType) } returns ResponseEntity("Rate limit Test", HttpStatus.TOO_MANY_REQUESTS)
+        every { retryHandler.executeWithRetry<String>(any()) } throws JokeApiRateLimitException("Rate limit reached")
         every { mockClock.instant() } returns Instant.parse("2023-09-01T10:00:00.00Z")
 
         assertThrows(JokeApiRateLimitException::class.java) {
@@ -68,27 +64,22 @@ class FaultTolerantHttpClientTest {
     fun `test executeRequest honors Retry-After header`() {
         val responseType = String::class.java
         val expectedResponse = "This is a joke"
-        val rateLimitedHeaders = HttpHeaders()
-        rateLimitedHeaders.set("Retry-After", "5")
-        val rateLimitedResponse =
-            ResponseEntity<String>("Rate limit Test", rateLimitedHeaders, HttpStatus.TOO_MANY_REQUESTS)
 
-        every { restOperations.getForEntity(testURL, responseType) } returns rateLimitedResponse
+        every { retryHandler.executeWithRetry<String>(any()) } answers { firstArg<() -> String>().invoke() }
         every { mockClock.instant() } returns Instant.parse("2023-09-01T10:00:00.00Z")
 
         // First request to set the nextAllowedRequestTime
+        every { restOperations.getForEntity(testURL, responseType) } returns ResponseEntity("Rate limit Test", HttpHeaders().apply {
+            this.set("Retry-After", "5")
+        }, HttpStatus.TOO_MANY_REQUESTS)
+
         assertThrows(JokeApiRateLimitException::class.java) {
             faultTolerantHttpClient.executeRequest(testURL, responseType)
         }
 
+        every { restOperations.getForEntity(testURL, responseType) } returns ResponseEntity(expectedResponse, HttpStatus.OK)
         every { mockClock.instant() } returns Instant.parse("2023-09-01T10:00:15.00Z")
-        // Now change the response to be successful
-        every { restOperations.getForEntity(testURL, responseType) } returns ResponseEntity(
-            expectedResponse,
-            HttpStatus.OK
-        )
 
-        // Third request should be successful
         val actualResponse = faultTolerantHttpClient.executeRequest(testURL, responseType)
         assertEquals(expectedResponse, actualResponse)
     }

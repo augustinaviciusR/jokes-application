@@ -1,7 +1,11 @@
 package lt.homeassignment.jokesapplication.configuration
 
+import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry
+import io.github.resilience4j.retry.Retry
+import io.github.resilience4j.retry.RetryConfig
+import lt.homeassignment.jokesapplication.model.JokeApiException
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
@@ -12,6 +16,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.springframework.web.filter.CorsFilter
 import java.time.Clock
 import java.time.Duration
+import java.time.temporal.ChronoUnit
 
 @Configuration
 class ApplicationConfig {
@@ -53,12 +58,35 @@ class ApplicationConfig {
     }
 
     @Bean
+    fun faultTolerantHttpClientClientBreaker(circuitBreakerRegistry: CircuitBreakerRegistry): CircuitBreaker {
+        return circuitBreakerRegistry.circuitBreaker("faultTolerantHttpClientClientBreaker")
+    }
+
+    @Bean
+    fun faultTolerantHttpClientRetry(circuitBreakerRegistry: CircuitBreakerRegistry): Retry {
+        val retryConfig = RetryConfig.custom<Any>()
+            .maxAttempts(MAX_RETRY_ATTEMPTS)
+            .intervalFunction { attempt ->
+                Duration.ofMillis(BASELINE_TIMEOUT_DURATION * attempt.toLong()).get(ChronoUnit.SECONDS)
+            }
+            .retryOnException { exception -> exception is JokeApiException }
+            .build()
+
+        return Retry.of("faultTolerantHttpClientRetry", retryConfig)
+    }
+
+
+    @Bean
     fun clock(): Clock {
         return Clock.systemUTC()
     }
+
+
     companion object {
         const val CIRCUIT_BREAKER_FAILURE_RATE_THRESHOLD = 50.0f
         const val CIRCUIT_BREAKER_WAIT_OPEN_STATE_DURATION = 60
         const val CIRCUIT_BREAKER_FAILURE_PERMITTED_CALL_IN_HALF_OPEN_STATE = 10
+        const val MAX_RETRY_ATTEMPTS = 3
+        const val BASELINE_TIMEOUT_DURATION = 500
     }
 }

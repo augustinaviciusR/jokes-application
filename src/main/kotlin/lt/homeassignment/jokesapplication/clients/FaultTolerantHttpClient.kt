@@ -1,10 +1,7 @@
 package lt.homeassignment.jokesapplication.clients
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry
 import io.github.resilience4j.retry.Retry
-import io.github.resilience4j.retry.RetryConfig
-import jakarta.annotation.PostConstruct
 import lt.homeassignment.jokesapplication.model.JokeApiBadRequestException
 import lt.homeassignment.jokesapplication.model.JokeApiException
 import lt.homeassignment.jokesapplication.model.JokeApiRateLimitException
@@ -13,53 +10,48 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestOperations
 import java.time.Clock
-import java.time.Duration
 import java.time.Instant
-import java.time.temporal.ChronoUnit
+
+// Create an interface for the retry logic
+interface RetryHandler {
+    fun <T> executeWithRetry(supplier: () -> T): T
+}
+
+// Decided to extract the retry logic to a separate class as it's configurable component and makes unit test too complicated
+// BDD tests will cover actual retrying logic
+@Component
+class RealRetryHandler(private val retry: Retry, private val circuitBreaker: CircuitBreaker) : RetryHandler {
+    override fun <T> executeWithRetry(supplier: () -> T): T {
+        return Retry.decorateCheckedSupplier(
+            retry,
+            CircuitBreaker.decorateCheckedSupplier(circuitBreaker, supplier)
+        ).apply()
+    }
+}
+
 
 @Component
 class FaultTolerantHttpClient(
     private val restOperations: RestOperations,
-    private val circuitBreakerRegistry: CircuitBreakerRegistry,
+    private val retryHandler: RetryHandler,
     private val clock: Clock // Inject a Clock for easier testing
 ) : CommonHttpClient {
 
     private val logger = KotlinLogging.logger {}
-
-    private lateinit var circuitBreaker: CircuitBreaker
-    private lateinit var retry: Retry
     private var nextAllowedRequestTime: Instant = Instant.MIN // Initialize with a time in the past
-
-    // TODO extract these to be injected from configuration
-    @PostConstruct
-    fun init() {
-        circuitBreaker = circuitBreakerRegistry.circuitBreaker("faultTolerantHttpClientClientBreaker")
-        val retryConfig = RetryConfig.custom<Any>()
-            .maxAttempts(MAX_RETRY_ATTEMPTS)
-            .intervalFunction { attempt ->
-                Duration.ofMillis(BASELINE_TIMEOUT_DURATION * attempt.toLong()).get(ChronoUnit.SECONDS)
-            }
-            .retryOnException { exception -> exception is JokeApiException }
-            .build()
-
-        retry = Retry.of("faultTolerantHttpClientRetry", retryConfig)
-    }
 
     override fun <T> executeRequest(url: String, responseType: Class<T>): T {
         if (clock.instant().isBefore(nextAllowedRequestTime)) {
             throw JokeApiRateLimitException("Rate limit exceeded. Try again later.")
         }
 
-        return Retry.decorateCheckedSupplier(
-            retry,
-            CircuitBreaker.decorateCheckedSupplier(circuitBreaker) {
+        return retryHandler.executeWithRetry {
                 val response = restOperations.getForEntity(url, responseType)
                 logUrlAndStatusCode(url, response)
                 handleResponseStatus(url, response)
 
                 response.body ?: throw JokeApiBadRequestException("API responded with empty body")
             }
-        ).apply()
     }
 
     private fun <T> handleResponseStatus(url: String, response: ResponseEntity<T>) {
@@ -76,6 +68,7 @@ class FaultTolerantHttpClient(
     private fun <T> handleRateLimit(response: ResponseEntity<T>) {
         // For this exercise we will only handle the Retry-After header and ignore the X-RateLimit-Reset header
         // Also we will not handle the case when the Retry-After header is not a number
+        // I might want to add logic to handle other headers like X-RateLimit-Remaining
         val retryAfterHeader = response.headers["Retry-After"]?.firstOrNull()?.toLongOrNull()
         retryAfterHeader?.let {
             nextAllowedRequestTime = clock.instant().plusSeconds(it)
@@ -85,10 +78,5 @@ class FaultTolerantHttpClient(
 
     private fun <T> logUrlAndStatusCode(url: String, response: ResponseEntity<T>) {
         logger.info("Request to: $url | Status Code: ${response.statusCode}")
-    }
-
-    companion object {
-        const val MAX_RETRY_ATTEMPTS = 3
-        const val BASELINE_TIMEOUT_DURATION = 500
     }
 }
