@@ -24,11 +24,12 @@ class ChuckNorrisJokeClientTest {
         value = "some wort of joke",
         categories = listOf("pun"),
         createdAt = LocalDateTime.now(),
-        updatedAt = LocalDateTime.now(),
+        updatedAt = LocalDateTime.now()
     )
 
     private val testJokeSearchResult = JokeSearchResult(
-        total = 1, result = listOf(
+        total = 1,
+        result = listOf(
             Joke(
                 id = "Why did the chicken cross the road?",
                 iconUrl = "To get to the other side",
@@ -36,7 +37,7 @@ class ChuckNorrisJokeClientTest {
                 value = "some wort of joke",
                 categories = listOf("pun"),
                 createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now(),
+                updatedAt = LocalDateTime.now()
             )
         )
     )
@@ -52,7 +53,8 @@ class ChuckNorrisJokeClientTest {
         val categories = listOf("tech", "science")
         every {
             commonHttpClient.executeRequest(
-                "$testURL/categories", Array<String>::class.java
+                "$testURL/categories",
+                Array<String>::class.java
             )
         } returns categories.toTypedArray()
 
@@ -75,7 +77,8 @@ class ChuckNorrisJokeClientTest {
         val testCategory = categories.random()
         every {
             commonHttpClient.executeRequest(
-                "$testURL/random?category=$testCategory", Joke::class.java
+                "$testURL/random?category=$testCategory",
+                Joke::class.java
             )
         } returns testJoke
 
@@ -89,7 +92,8 @@ class ChuckNorrisJokeClientTest {
         val query = "some random query"
         every {
             commonHttpClient.executeRequest(
-                "$testURL/search?&query=$query", JokeSearchResult::class.java
+                "$testURL/search?&query=$query",
+                JokeSearchResult::class.java
             )
         } returns testJokeSearchResult
 

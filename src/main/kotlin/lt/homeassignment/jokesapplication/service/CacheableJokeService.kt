@@ -5,8 +5,8 @@ import lt.homeassignment.jokesapplication.model.Joke
 import lt.homeassignment.jokesapplication.model.JokeApiException
 import lt.homeassignment.jokesapplication.model.JokeSearchResult
 import mu.KotlinLogging
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import org.springframework.web.client.RestClientResponseException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 
@@ -17,10 +17,6 @@ class CacheableJokeService(
 
     private val logger = KotlinLogging.logger {}
 
-    // Externalize the max cache size to a configuration property
-    @Value("\${joke.cache.size:100}")
-    private var maxCacheSize: Int = 100
-
     private val jokesCache: ConcurrentHashMap<String, MutableSet<Joke>> = ConcurrentHashMap()
     private val cachedCategories: AtomicReference<Set<String>> = AtomicReference(setOf())
 
@@ -29,12 +25,13 @@ class CacheableJokeService(
             logger.info("Initializing CacheableJokeService.")
             refreshCachedCategories()
             prefillJokeCache()
-        } catch (e: RuntimeException) {
-            //TODO handle with MDC for better logging
-            logger.error("Failed to initialize caches for CacheableJokeService")
+            // Ideally handle well-defined exception, in order to save time I am handling REST based exceptions
+            // But I would prove not a good design if JokeProvider protocol would change
+        } catch (e: RestClientResponseException) {
+            // TODO handle with MDC for better logging
+            logger.error("Failed to initialize caches for CacheableJokeService", e)
         }
     }
-
 
     override fun listAvailableCategories(): Set<String> {
         return cachedCategories.get().takeIf { it.isNotEmpty() } ?: run {
@@ -50,9 +47,8 @@ class CacheableJokeService(
             logger.debug("Failed to fetch joke for category: $normalizedCategory")
             getRandomCachedJoke(normalizedCategory)
         } catch (e: JokeApiException) {
-            logger.error("Fetching joke for category: $normalizedCategory")
+            logger.error("Fetching joke for category: $normalizedCategory", e)
             fetchAndCacheJoke(normalizedCategory)
-
         }
     }
 
@@ -69,7 +65,7 @@ class CacheableJokeService(
         cachedCategories.get().forEach { category ->
             try {
                 fetchAndCacheJoke(category)
-            } catch (e: Exception) {
+            } catch (e: RestClientResponseException) {
                 logger.error("Failed to prefill cache for category: $category", e)
             }
         }
@@ -80,7 +76,7 @@ class CacheableJokeService(
         val categoryJokes = jokesCache.computeIfAbsent(category) { ConcurrentHashMap.newKeySet() }
 
         // Implement a simple cache eviction policy
-        if (categoryJokes.size >= maxCacheSize) {
+        if (categoryJokes.size >= MAX_ALLOWED_CACHE_SIZE) {
             val evictedJoke = categoryJokes.first()
             categoryJokes.remove(evictedJoke)
         }
@@ -95,7 +91,7 @@ class CacheableJokeService(
             ?: throw JokeApiException("No cached jokes available for category: $category")
     }
 
-    //Avoiding the use of the cache for this method, query string is a free text field
+    // Avoiding the use of the cache for this method, query string is a free text field
     // Thus it would take too much effort to implement cache which would provide any value
     override fun searchForJokes(query: String): JokeSearchResult {
         logger.debug("Searching for jokes with query: $query")
@@ -109,4 +105,8 @@ class CacheableJokeService(
         return cachedCategories
     }
 
+    companion object {
+        // Externalize the max cache size to a configuration property
+        const val MAX_ALLOWED_CACHE_SIZE: Int = 100
+    }
 }

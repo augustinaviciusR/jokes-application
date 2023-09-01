@@ -7,5 +7,7 @@ import org.springframework.boot.runApplication
 class JokesApplication
 
 fun main(args: Array<String>) {
+    // ktlint caches this line as a warning, but it is required for Spring Boot to run
+    @Suppress("SpreadOperator")
     runApplication<JokesApplication>(*args)
 }

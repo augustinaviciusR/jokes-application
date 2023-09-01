@@ -12,10 +12,10 @@ import mu.KotlinLogging
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestOperations
-import java.time.Duration
-import java.time.temporal.ChronoUnit
 import java.time.Clock
+import java.time.Duration
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 @Component
 class FaultTolerantHttpClient(
@@ -30,14 +30,15 @@ class FaultTolerantHttpClient(
     private lateinit var retry: Retry
     private var nextAllowedRequestTime: Instant = Instant.MIN // Initialize with a time in the past
 
-    //TODO extract these to be injected from configuration
+    // TODO extract these to be injected from configuration
     @PostConstruct
     fun init() {
         circuitBreaker = circuitBreakerRegistry.circuitBreaker("faultTolerantHttpClientClientBreaker")
-
         val retryConfig = RetryConfig.custom<Any>()
-            .maxAttempts(3)
-            .intervalFunction { attempt -> Duration.ofMillis(500 * attempt.toLong()).get(ChronoUnit.SECONDS) }
+            .maxAttempts(MAX_RETRY_ATTEMPTS)
+            .intervalFunction { attempt ->
+                Duration.ofMillis(BASELINE_TIMEOUT_DURATION * attempt.toLong()).get(ChronoUnit.SECONDS)
+            }
             .retryOnException { exception -> exception is JokeApiException }
             .build()
 
@@ -49,13 +50,16 @@ class FaultTolerantHttpClient(
             throw JokeApiRateLimitException("Rate limit exceeded. Try again later.")
         }
 
-        return Retry.decorateCheckedSupplier(retry, CircuitBreaker.decorateCheckedSupplier(circuitBreaker) {
-            val response = restOperations.getForEntity(url, responseType)
-            logUrlAndStatusCode(url, response)
-            handleResponseStatus(url, response)
+        return Retry.decorateCheckedSupplier(
+            retry,
+            CircuitBreaker.decorateCheckedSupplier(circuitBreaker) {
+                val response = restOperations.getForEntity(url, responseType)
+                logUrlAndStatusCode(url, response)
+                handleResponseStatus(url, response)
 
-            response.body ?: throw JokeApiBadRequestException("API responded with empty body")
-        }).apply()
+                response.body ?: throw JokeApiBadRequestException("API responded with empty body")
+            }
+        ).apply()
     }
 
     private fun <T> handleResponseStatus(url: String, response: ResponseEntity<T>) {
@@ -70,8 +74,8 @@ class FaultTolerantHttpClient(
     }
 
     private fun <T> handleRateLimit(response: ResponseEntity<T>) {
-        //For this exercise we will only handle the Retry-After header and ignore the X-RateLimit-Reset header
-        //Also we will not handle the case when the Retry-After header is not a number
+        // For this exercise we will only handle the Retry-After header and ignore the X-RateLimit-Reset header
+        // Also we will not handle the case when the Retry-After header is not a number
         val retryAfterHeader = response.headers["Retry-After"]?.firstOrNull()?.toLongOrNull()
         retryAfterHeader?.let {
             nextAllowedRequestTime = clock.instant().plusSeconds(it)
@@ -81,5 +85,10 @@ class FaultTolerantHttpClient(
 
     private fun <T> logUrlAndStatusCode(url: String, response: ResponseEntity<T>) {
         logger.info("Request to: $url | Status Code: ${response.statusCode}")
+    }
+
+    companion object {
+        const val MAX_RETRY_ATTEMPTS = 3
+        const val BASELINE_TIMEOUT_DURATION = 500
     }
 }

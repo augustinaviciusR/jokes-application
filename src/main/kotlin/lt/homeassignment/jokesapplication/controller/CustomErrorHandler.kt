@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.ServletWebRequest
 import java.io.IOException
 
-
 @ControllerAdvice
 class CustomErrorHandler {
     @ExceptionHandler(ConstraintViolationException::class)

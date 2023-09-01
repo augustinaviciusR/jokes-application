@@ -8,13 +8,12 @@ import lt.homeassignment.jokesapplication.model.JokeApiRateLimitException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestOperations
-
-import org.springframework.http.*
-import java.lang.Thread.sleep
 import java.time.Clock
 import java.time.Instant
-import java.time.ZoneId
 import kotlin.test.Test
 
 class FaultTolerantHttpClientTest {
@@ -53,7 +52,7 @@ class FaultTolerantHttpClientTest {
     }
 
     @Test
-    fun `test executeRequest throws JokeApiRateLimitException for rate-limited request if Retry-After does not exist`() {
+    fun `test executeRequest throws JokeApiRateLimitException for rate-limited request if Retry-After doesn't exist`() {
         val responseType = String::class.java
         val rateLimitedResponse = ResponseEntity<String>("Rate limit Test", HttpStatus.TOO_MANY_REQUESTS)
 
@@ -93,5 +92,4 @@ class FaultTolerantHttpClientTest {
         val actualResponse = faultTolerantHttpClient.executeRequest(testURL, responseType)
         assertEquals(expectedResponse, actualResponse)
     }
-
 }

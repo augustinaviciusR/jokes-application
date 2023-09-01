@@ -3,8 +3,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "3.1.3"
     id("io.spring.dependency-management") version "1.1.3"
-    kotlin("jvm") version "1.8.22"
-    kotlin("plugin.spring") version "1.8.22"
+    id("org.jlleitschuh.gradle.ktlint") version "11.5.1" // Kotlin code linter
+    id("io.gitlab.arturbosch.detekt") version "1.23.1" // static code analysis tool
+    id("com.diffplug.spotless") version "6.21.0" // code formatter
+    kotlin("jvm") version "1.9.0"
+    kotlin("plugin.spring") version "1.9.0"
 }
 
 group = "lt.homeassignment"
@@ -18,7 +21,7 @@ repositories {
     mavenCentral()
 }
 
-//TODO exclude unneeded dependencies
+// TODO exclude unneeded dependencies
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.jetbrains.kotlin:kotlin-reflect")

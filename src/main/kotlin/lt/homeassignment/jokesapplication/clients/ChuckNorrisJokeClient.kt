@@ -8,7 +8,8 @@ import org.springframework.stereotype.Component
 @Component
 class ChuckNorrisJokeClient(
     @Value("\${joke.api.url}") private val url: String,
-    private val commonHttpClient: CommonHttpClient): JokeProvider {
+    private val commonHttpClient: CommonHttpClient
+) : JokeProvider {
 
     override fun listJokeCategories(): Set<String> {
         return commonHttpClient.executeRequest("$url/categories", Array<String>::class.java).toSortedSet()

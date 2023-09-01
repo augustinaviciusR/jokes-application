@@ -1,4 +1,4 @@
-package  lt.homeassignment.jokesapplication.clients
+package lt.homeassignment.jokesapplication.clients
 
 import lt.homeassignment.jokesapplication.model.Joke
 import lt.homeassignment.jokesapplication.model.JokeSearchResult
