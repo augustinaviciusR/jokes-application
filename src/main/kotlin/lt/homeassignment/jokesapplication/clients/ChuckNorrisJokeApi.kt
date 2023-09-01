@@ -2,11 +2,14 @@ package lt.homeassignment.jokesapplication.clients
 
 import lt.homeassignment.jokesapplication.model.Joke
 import lt.homeassignment.jokesapplication.model.JokeSearchResult
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 
 @Component
-class ChuckNorrisJokeApi () : JokeProvider {
+class ChuckNorrisJokeApi(
+    @Value("\${joke.api.url}") private val url: String,
+    private val commonHttpClient: CommonHttpClient): JokeProvider {
 
     override fun listJokeCategories(): Set<String> {
         return setOf()
