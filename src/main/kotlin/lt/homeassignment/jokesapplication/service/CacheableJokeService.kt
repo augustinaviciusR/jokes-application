@@ -6,6 +6,7 @@ import lt.homeassignment.jokesapplication.model.Joke
 import lt.homeassignment.jokesapplication.model.JokeSearchResult
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
+import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class CacheableJokeService(
@@ -43,5 +44,9 @@ class CacheableJokeService(
                 )
             )
         )
+    }
+
+    fun getJokesCache(): ConcurrentHashMap<String, MutableSet<Joke>> {
+        return ConcurrentHashMap()
     }
 }
