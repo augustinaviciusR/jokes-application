@@ -46,3 +46,7 @@ tasks.withType<KotlinCompile> {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+tasks.register("verification") {
+    dependsOn("test", "ktlintCheck", "detekt", "spotlessCheck")
+}
