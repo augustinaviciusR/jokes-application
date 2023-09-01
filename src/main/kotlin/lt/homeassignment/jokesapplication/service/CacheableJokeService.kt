@@ -12,8 +12,8 @@ class CacheableJokeService(
     private val jokeProvider: JokeProvider
 ) : JokeService {
 
-    override fun listAvailableCategories(): List<String> {
-        return listOf()
+    override fun listAvailableCategories(): Set<String> {
+        return setOf()
     }
 
     override fun getJoke(category: String?): Joke {

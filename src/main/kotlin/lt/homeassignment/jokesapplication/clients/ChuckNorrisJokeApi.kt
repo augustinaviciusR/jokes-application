@@ -8,8 +8,8 @@ import java.time.LocalDateTime
 @Component
 class ChuckNorrisJokeApi () : JokeProvider {
 
-    override fun listJokeCategories(): List<String> {
-        return listOf()
+    override fun listJokeCategories(): Set<String> {
+        return setOf()
     }
 
     override fun getRandomJoke(category: String?): Joke {

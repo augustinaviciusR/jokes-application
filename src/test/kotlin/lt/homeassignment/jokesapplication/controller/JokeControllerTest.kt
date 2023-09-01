@@ -33,7 +33,6 @@ class JokesControllerTest(@Autowired val mockMvc: MockMvc){
 
     @Test
     fun `searchJokes should return jokes when query is provided`() {
-        every { jokeService.listAvailableCategories() } returns listOf("animals", "funny")
         val query = "funny"
         val jokes = listOf(testJoke)
         val result = JokeSearchResult(jokes.size, jokes)
@@ -50,7 +49,6 @@ class JokesControllerTest(@Autowired val mockMvc: MockMvc){
 
     @Test
     fun `searchJokes should return 400 Bad Request when query is too long`() {
-        every { jokeService.listAvailableCategories() } returns listOf("animals", "funny")
         val query = "a".repeat(101)
         mockMvc.get("/v1/api/jokes/search") {
             param("query", query)
@@ -62,7 +60,7 @@ class JokesControllerTest(@Autowired val mockMvc: MockMvc){
 
     @Test
     fun `getJoke should return joke when category is null or empty`() {
-        every { jokeService.listAvailableCategories() } returns listOf("animals", "funny")
+        every { jokeService.listAvailableCategories() } returns setOf("animals", "funny")
         every { jokeService.getJoke(null) } returns testJoke
 
         mockMvc.get("/v1/api/jokes") {
@@ -82,7 +80,7 @@ class JokesControllerTest(@Autowired val mockMvc: MockMvc){
     }
     @Test
     fun `getJoke should return joke when valid category provided`() {
-        every { jokeService.listAvailableCategories() } returns listOf("animals", "funny")
+        every { jokeService.listAvailableCategories() } returns setOf("animals", "funny")
         every { jokeService.getJoke("animals") } returns testJoke
 
         mockMvc.get("/v1/api/jokes") {
@@ -96,7 +94,7 @@ class JokesControllerTest(@Autowired val mockMvc: MockMvc){
 
     @Test
     fun `getJoke should return 400 Bad Request when category is too short`() {
-        every { jokeService.listAvailableCategories() } returns listOf("animals", "funny")
+        every { jokeService.listAvailableCategories() } returns setOf("animals", "funny")
         mockMvc.get("/v1/api/jokes") {
             param("category", "ab")
             accept(MediaType.APPLICATION_JSON)
@@ -107,7 +105,7 @@ class JokesControllerTest(@Autowired val mockMvc: MockMvc){
 
     @Test
     fun `getJoke should return 400 Bad Request when category is too long`() {
-        every { jokeService.listAvailableCategories() } returns listOf("animals", "funny")
+        every { jokeService.listAvailableCategories() } returns setOf("animals", "funny")
         val longCategory = "a".repeat(101)
         mockMvc.get("/v1/api/jokes") {
             param("category", longCategory)
