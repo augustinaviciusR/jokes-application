@@ -8,6 +8,11 @@ class JokeApiRateLimitException(message: String) : RuntimeException(message)
 class JokeApiBadRequestException(message: String) : RuntimeException(message)
 class JokeApiException(message: String) : RuntimeException(message)
 
+
+//I'm reusing same data classes from the 3rd party client as it fits acceptance criteria
+// However I would not do this in a real project, because it would create a dependency on the 3rd party client
+// and would make it harder to change the 3rd party client in the future
+// This is just save precious time and not to do mapping between data classes
 data class JokeSearchResult(
     @JsonProperty("total")
     val total: Int,
