@@ -25,9 +25,14 @@ class CacheableJokeService(
     private val cachedCategories: AtomicReference<Set<String>> = AtomicReference(setOf())
 
     init {
-        logger.info("Initializing CacheableJokeService.")
-        refreshCachedCategories()
-        prefillJokeCache()
+        try {
+            logger.info("Initializing CacheableJokeService.")
+            refreshCachedCategories()
+            prefillJokeCache()
+        } catch (e: RuntimeException) {
+            //TODO handle with MDC for better logging
+            logger.error("Failed to initialize caches for CacheableJokeService")
+        }
     }
 
 

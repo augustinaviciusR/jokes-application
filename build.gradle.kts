@@ -23,6 +23,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.hibernate.validator:hibernate-validator:7.0.2.Final")
+    implementation("io.github.resilience4j:resilience4j-circuitbreaker:1.7.0")
+    implementation("io.github.resilience4j:resilience4j-retry:1.7.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("com.ninja-squad:springmockk:4.0.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.8.22")

@@ -10,11 +10,11 @@ import org.junit.jupiter.api.BeforeEach
 import java.time.LocalDateTime
 import kotlin.test.Test
 
-class ChuckNorrisJokeApiTest {
+class ChuckNorrisJokeClientTest {
 
     private val testURL = "https://api.chucknorris.io/jokes"
     private val commonHttpClient: CommonHttpClient = mockk()
-    private lateinit var chuckNorrisJokeApi: ChuckNorrisJokeApi
+    private lateinit var chuckNorrisJokeClient: ChuckNorrisJokeClient
 
     private val categories = setOf("tech", "science")
     private val testJoke = Joke(
@@ -44,7 +44,7 @@ class ChuckNorrisJokeApiTest {
     @BeforeEach
     fun setUp() {
         clearAllMocks()
-        chuckNorrisJokeApi = ChuckNorrisJokeApi(testURL, commonHttpClient)
+        chuckNorrisJokeClient = ChuckNorrisJokeClient(testURL, commonHttpClient)
     }
 
     @Test
@@ -56,7 +56,7 @@ class ChuckNorrisJokeApiTest {
             )
         } returns categories.toTypedArray()
 
-        val result = chuckNorrisJokeApi.listJokeCategories()
+        val result = chuckNorrisJokeClient.listJokeCategories()
 
         assertEquals(categories.toSortedSet(), result)
     }
@@ -65,7 +65,7 @@ class ChuckNorrisJokeApiTest {
     fun `test getRandomJoke without category`() {
         every { commonHttpClient.executeRequest("$testURL/random", Joke::class.java) } returns testJoke
 
-        val result = chuckNorrisJokeApi.getRandomJoke(null)
+        val result = chuckNorrisJokeClient.getRandomJoke(null)
 
         assertEquals(testJoke, result)
     }
@@ -79,7 +79,7 @@ class ChuckNorrisJokeApiTest {
             )
         } returns testJoke
 
-        val result = chuckNorrisJokeApi.getRandomJoke(testCategory)
+        val result = chuckNorrisJokeClient.getRandomJoke(testCategory)
 
         assertEquals(testJoke, result)
     }
@@ -93,7 +93,7 @@ class ChuckNorrisJokeApiTest {
             )
         } returns testJokeSearchResult
 
-        val result = chuckNorrisJokeApi.searchForJokes(query)
+        val result = chuckNorrisJokeClient.searchForJokes(query)
 
         assertEquals(testJokeSearchResult, result)
     }
