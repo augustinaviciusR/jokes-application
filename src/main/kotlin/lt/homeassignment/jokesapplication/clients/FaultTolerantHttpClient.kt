@@ -8,7 +8,7 @@ import jakarta.annotation.PostConstruct
 import lt.homeassignment.jokesapplication.model.JokeApiBadRequestException
 import lt.homeassignment.jokesapplication.model.JokeApiException
 import lt.homeassignment.jokesapplication.model.JokeApiRateLimitException
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestOperations
@@ -24,7 +24,7 @@ class FaultTolerantHttpClient(
     private val clock: Clock // Inject a Clock for easier testing
 ) : CommonHttpClient {
 
-    private val logger = LoggerFactory.getLogger(FaultTolerantHttpClient::class.java)
+    private val logger = KotlinLogging.logger {}
 
     private lateinit var circuitBreaker: CircuitBreaker
     private lateinit var retry: Retry

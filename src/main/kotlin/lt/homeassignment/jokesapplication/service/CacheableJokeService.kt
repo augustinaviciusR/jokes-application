@@ -4,7 +4,7 @@ import lt.homeassignment.jokesapplication.clients.JokeProvider
 import lt.homeassignment.jokesapplication.model.Joke
 import lt.homeassignment.jokesapplication.model.JokeApiException
 import lt.homeassignment.jokesapplication.model.JokeSearchResult
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
@@ -15,7 +15,7 @@ class CacheableJokeService(
     private val jokeProvider: JokeProvider
 ) : JokeService {
 
-    private val logger = LoggerFactory.getLogger(CacheableJokeService::class.java)
+    private val logger = KotlinLogging.logger {}
 
     // Externalize the max cache size to a configuration property
     @Value("\${joke.cache.size:100}")
