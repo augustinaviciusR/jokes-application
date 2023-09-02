@@ -32,8 +32,13 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:6.6")
     implementation("ch.qos.logback:logback-classic:1.4.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("com.ninja-squad:springmockk:4.0.0")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.8.22")
+    testImplementation("io.mockk:mockk:1.12.0")
+    // Cucumber dependencies
+    testImplementation("io.cucumber:cucumber-java:6.11.0")
+    testImplementation("io.cucumber:cucumber-junit:6.11.0")
+    testImplementation("io.cucumber:cucumber-spring:6.11.0")
+    testImplementation("org.testcontainers:testcontainers:1.19.0")
+    testImplementation("org.testcontainers:junit-jupiter:1.19.0")
 }
 
 tasks.withType<KotlinCompile> {

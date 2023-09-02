@@ -1,5 +1,5 @@
 # Using builder pattern to build the jar artifact
-FROM gradle:7.2.0-jdk11 AS build
+FROM gradle:8.3.0-jdk17 AS build
 WORKDIR /home/gradle/src
 # Copy the source files
 COPY build.gradle.kts .

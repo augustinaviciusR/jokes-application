@@ -47,12 +47,15 @@ class ApplicationConfig {
 
     @Bean
     fun circuitBreakerRegistry(): CircuitBreakerRegistry {
-        val circuitBreakerConfig = CircuitBreakerConfig.custom()
-            .failureRateThreshold(CIRCUIT_BREAKER_FAILURE_RATE_THRESHOLD)
-            .waitDurationInOpenState(Duration.ofSeconds(CIRCUIT_BREAKER_WAIT_OPEN_STATE_DURATION.toLong()))
-            .permittedNumberOfCallsInHalfOpenState(CIRCUIT_BREAKER_FAILURE_PERMITTED_CALL_IN_HALF_OPEN_STATE)
-            .slidingWindow(1, 1, CircuitBreakerConfig.SlidingWindowType.TIME_BASED)
-            .build()
+        val circuitBreakerConfig =
+            CircuitBreakerConfig.custom().failureRateThreshold(CIRCUIT_BREAKER_FAILURE_RATE_THRESHOLD)
+                .waitDurationInOpenState(Duration.ofSeconds(CIRCUIT_BREAKER_WAIT_OPEN_STATE_DURATION.toLong()))
+                .permittedNumberOfCallsInHalfOpenState(CIRCUIT_BREAKER_FAILURE_PERMITTED_CALL_IN_HALF_OPEN_STATE)
+                .slidingWindow(
+                    CIRCUIT_BREAKER_SLIDING_WINDOW_SIZE,
+                    CIRCUIT_BREAKER_NUMBER_OF_CALLS,
+                    CircuitBreakerConfig.SlidingWindowType.TIME_BASED
+                ).build()
 
         return CircuitBreakerRegistry.of(circuitBreakerConfig)
     }
@@ -64,13 +67,10 @@ class ApplicationConfig {
 
     @Bean
     fun faultTolerantHttpClientRetry(): Retry {
-        val retryConfig = RetryConfig.custom<Any>()
-            .maxAttempts(MAX_RETRY_ATTEMPTS)
+        val retryConfig = RetryConfig.custom<Any>().maxAttempts(MAX_RETRY_ATTEMPTS)
             .intervalFunction { attempt ->
                 Duration.ofMillis(BASELINE_TIMEOUT_DURATION * attempt.toLong()).get(ChronoUnit.SECONDS)
-            }
-            .retryOnException { exception -> exception is JokeApiException }
-            .build()
+            }.retryOnException { exception -> exception is JokeApiException }.build()
 
         return Retry.of("faultTolerantHttpClientRetry", retryConfig)
     }
@@ -84,6 +84,8 @@ class ApplicationConfig {
         const val CIRCUIT_BREAKER_FAILURE_RATE_THRESHOLD = 50.0f
         const val CIRCUIT_BREAKER_WAIT_OPEN_STATE_DURATION = 60
         const val CIRCUIT_BREAKER_FAILURE_PERMITTED_CALL_IN_HALF_OPEN_STATE = 10
+        const val CIRCUIT_BREAKER_SLIDING_WINDOW_SIZE = 5
+        const val CIRCUIT_BREAKER_NUMBER_OF_CALLS = 5
         const val MAX_RETRY_ATTEMPTS = 3
         const val BASELINE_TIMEOUT_DURATION = 500
     }

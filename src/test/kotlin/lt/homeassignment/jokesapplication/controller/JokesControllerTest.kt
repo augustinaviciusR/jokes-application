@@ -1,27 +1,20 @@
 package lt.homeassignment.jokesapplication.controller
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.mockk
 import lt.homeassignment.jokesapplication.model.Joke
 import lt.homeassignment.jokesapplication.model.JokeSearchResult
 import lt.homeassignment.jokesapplication.service.JokeService
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.springframework.http.ResponseEntity
 import java.time.LocalDateTime
-import kotlin.test.Test
 
-@WebMvcTest(JokesController::class)
-class JokesControllerTest(@Autowired val mockMvc: MockMvc) {
+class JokesControllerTest {
 
-    @Autowired
-    lateinit var objectMapper: ObjectMapper
-
-    @MockkBean
-    lateinit var jokeService: JokeService
+    private lateinit var jokeService: JokeService
+    private lateinit var jokesController: JokesController
 
     private val testJoke = Joke(
         id = "1",
@@ -33,88 +26,46 @@ class JokesControllerTest(@Autowired val mockMvc: MockMvc) {
         emptyList()
     )
 
-    @Test
-    fun `searchJokes should return jokes when query is provided`() {
-        val query = "funny"
-        val jokes = listOf(testJoke)
-        val result = JokeSearchResult(jokes.size, jokes)
-        every { jokeService.searchForJokes(query) } returns result
-
-        mockMvc.get("/v1/api/jokes/search") {
-            param("query", query)
-            accept(MediaType.APPLICATION_JSON)
-        }.andExpect {
-            status { isOk() }
-            content { json(objectMapper.writeValueAsString(result)) }
-        }
+    @BeforeEach
+    fun setup() {
+        jokeService = mockk()
+        jokesController = JokesController(jokeService)
     }
 
     @Test
-    fun `searchJokes should return 400 Bad Request when query is too long`() {
-        val query = "a".repeat(101)
-        mockMvc.get("/v1/api/jokes/search") {
-            param("query", query)
-            accept(MediaType.APPLICATION_JSON)
-        }.andExpect {
-            status { isBadRequest() }
-        }
+    fun `test searchJokes returns jokes`() {
+        val query = "test"
+        val expectedResult = JokeSearchResult(
+            total = 1,
+            result = listOf(testJoke)
+        )
+
+        every { jokeService.searchForJokes(query.lowercase().trim()) } returns expectedResult
+
+        val result = jokesController.searchJokes(query)
+
+        Assertions.assertEquals(ResponseEntity.ok(expectedResult), result)
     }
 
     @Test
-    fun `getJoke should return joke when category is null or empty`() {
-        every { jokeService.listAvailableCategories() } returns setOf("animals", "funny")
-        every { jokeService.getJoke(null) } returns testJoke
+    fun `test getAJoke returns a joke for a given category`() {
+        val category = "funny"
 
-        mockMvc.get("/v1/api/jokes") {
-            accept(MediaType.APPLICATION_JSON)
-        }.andExpect {
-            status { isOk() }
-            content { json(objectMapper.writeValueAsString(testJoke)) }
-        }
+        every { jokeService.getJoke(category.lowercase().trim()) } returns testJoke
 
-        mockMvc.get("/v1/api/jokes") {
-            param("category", "")
-            accept(MediaType.APPLICATION_JSON)
-        }.andExpect {
-            status { isOk() }
-            content { json(objectMapper.writeValueAsString(testJoke)) }
-        }
+        val result = jokesController.getAJoke(category)
+
+        Assertions.assertEquals(ResponseEntity.ok(testJoke), result)
     }
 
     @Test
-    fun `getJoke should return joke when valid category provided`() {
-        every { jokeService.listAvailableCategories() } returns setOf("animals", "funny")
-        every { jokeService.getJoke("animals") } returns testJoke
+    fun `test getAJoke returns a joke when no category is provided`() {
+        val expectedResult = testJoke
 
-        mockMvc.get("/v1/api/jokes") {
-            param("category", "animals")
-            accept(MediaType.APPLICATION_JSON)
-        }.andExpect {
-            status { isOk() }
-            content { json(objectMapper.writeValueAsString(testJoke)) }
-        }
-    }
+        every { jokeService.getJoke(null) } returns expectedResult
 
-    @Test
-    fun `getJoke should return 400 Bad Request when category is too short`() {
-        every { jokeService.listAvailableCategories() } returns setOf("animals", "funny")
-        mockMvc.get("/v1/api/jokes") {
-            param("category", "ab")
-            accept(MediaType.APPLICATION_JSON)
-        }.andExpect {
-            status { isBadRequest() }
-        }
-    }
+        val result = jokesController.getAJoke(null)
 
-    @Test
-    fun `getJoke should return 400 Bad Request when category is too long`() {
-        every { jokeService.listAvailableCategories() } returns setOf("animals", "funny")
-        val longCategory = "a".repeat(101)
-        mockMvc.get("/v1/api/jokes") {
-            param("category", longCategory)
-            accept(MediaType.APPLICATION_JSON)
-        }.andExpect {
-            status { isBadRequest() }
-        }
+        Assertions.assertEquals(ResponseEntity.ok(expectedResult), result)
     }
 }

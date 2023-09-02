@@ -44,10 +44,10 @@ class CacheableJokeService(
     override fun getJoke(category: String?): Joke {
         val normalizedCategory = normalizeCategory(category)
         return try {
-            logger.debug("Failed to fetch joke for category: $normalizedCategory")
+            logger.debug("Fetching joke for category: $normalizedCategory")
             getRandomCachedJoke(normalizedCategory)
         } catch (e: JokeApiException) {
-            logger.error("Fetching joke for category: $normalizedCategory", e)
+            logger.error("Failed fetching joke for category: $normalizedCategory, error: ${e.message}")
             fetchAndCacheJoke(normalizedCategory)
         }
     }

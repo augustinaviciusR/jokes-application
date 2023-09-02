@@ -6,13 +6,13 @@ import lt.homeassignment.jokesapplication.model.JokeApiRateLimitException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestOperations
 import java.time.Clock
 import java.time.Instant
-import kotlin.test.Test
 
 class FaultTolerantHttpClientTest {
 

@@ -1,0 +1,17 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/jokes/categories"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": [
+      "animal",
+      "career",
+      "celebrity"
+    ]
+  }
+}

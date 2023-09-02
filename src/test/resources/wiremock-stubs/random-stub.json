@@ -1,0 +1,28 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/jokes/random",
+    "queryParameters": {
+      "category": {
+        "matches": ".*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "categories": [
+        "animal"
+      ],
+      "created_at": "2020-01-05 13:42:19.576875",
+      "icon_url": "https://assets.chucknorris.host/img/avatar/chuck-norris.png",
+      "id": "bmom6jqftpqgokh8adtolw",
+      "updated_at": "2020-01-05 13:42:19.576875",
+      "url": "https://api.chucknorris.io/jokes/bmom6jqftpqgokh8adtolw",
+      "value": "Chuck Norris once rode a nine foot grizzly bear through an automatic car wash, instead of taking a shower."
+    }
+  }
+}

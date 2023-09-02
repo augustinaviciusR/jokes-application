@@ -1,0 +1,123 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/jokes/search",
+    "queryParameters": {
+      "query": {
+        "matches": ".*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "total": 11,
+      "result": [
+        {
+          "categories": [],
+          "created_at": "2020-01-05 13:42:21.795084",
+          "icon_url": "https://assets.chucknorris.host/img/avatar/chuck-norris.png",
+          "id": "mHBDmiiqRwOv2qOfx0gu6Q",
+          "updated_at": "2020-01-05 13:42:21.795084",
+          "url": "https://api.chucknorris.io/jokes/mHBDmiiqRwOv2qOfx0gu6Q",
+          "value": "Chuck Norris once composed an unfunny Chuck Norris fact. No one laughed. He killed everyone. You are reading that fact now."
+        },
+        {
+          "categories": [],
+          "created_at": "2020-01-05 13:42:24.142371",
+          "icon_url": "https://assets.chucknorris.host/img/avatar/chuck-norris.png",
+          "id": "xDKhh1k3T_qiQEnRTyeklg",
+          "updated_at": "2020-01-05 13:42:24.142371",
+          "url": "https://api.chucknorris.io/jokes/xDKhh1k3T_qiQEnRTyeklg",
+          "value": "Steven Segal onece challenged Chuck Norris to a fight, Chuck Norris roundhouse kicked him in the face. this is why Steven Segal talks funny"
+        },
+        {
+          "categories": [],
+          "created_at": "2020-01-05 13:42:25.628594",
+          "icon_url": "https://assets.chucknorris.host/img/avatar/chuck-norris.png",
+          "id": "rfrq6f19SaCTAAP44kBjMg",
+          "updated_at": "2020-01-05 13:42:25.628594",
+          "url": "https://api.chucknorris.io/jokes/rfrq6f19SaCTAAP44kBjMg",
+          "value": "Chuck Norris can think Amy Schumer isn't funny without being labelled a woman-hater."
+        },
+        {
+          "categories": [],
+          "created_at": "2020-01-05 13:42:28.143137",
+          "icon_url": "https://assets.chucknorris.host/img/avatar/chuck-norris.png",
+          "id": "ypTKyGZpSZmb_c1xgVZWew",
+          "updated_at": "2020-01-05 13:42:28.143137",
+          "url": "https://api.chucknorris.io/jokes/ypTKyGZpSZmb_c1xgVZWew",
+          "value": "Chuck Norris knows it's funny until someone gets hurt... THAN IT'S HILARIOUS."
+        },
+        {
+          "categories": [],
+          "created_at": "2020-01-05 13:42:28.420821",
+          "icon_url": "https://assets.chucknorris.host/img/avatar/chuck-norris.png",
+          "id": "crvEXdYAScKBMc5_dG2UKA",
+          "updated_at": "2020-01-05 13:42:28.420821",
+          "url": "https://api.chucknorris.io/jokes/crvEXdYAScKBMc5_dG2UKA",
+          "value": "If you want to know if something is funny, just ask Chuck Norris. If he laughs, it's funny. If he doesn't, prepare to die, because you wasted his time."
+        },
+        {
+          "categories": [],
+          "created_at": "2020-01-05 13:42:28.664997",
+          "icon_url": "https://assets.chucknorris.host/img/avatar/chuck-norris.png",
+          "id": "MeZV3otTTiCVuCizSSYSLw",
+          "updated_at": "2020-01-05 13:42:28.664997",
+          "url": "https://api.chucknorris.io/jokes/MeZV3otTTiCVuCizSSYSLw",
+          "value": "Chuck Norris use to eat clowns but they taste funny."
+        },
+        {
+          "categories": [],
+          "created_at": "2020-01-05 13:42:28.664997",
+          "icon_url": "https://assets.chucknorris.host/img/avatar/chuck-norris.png",
+          "id": "HW2FCG66SKeloYZR1wjn3A",
+          "updated_at": "2020-01-05 13:42:28.664997",
+          "url": "https://api.chucknorris.io/jokes/HW2FCG66SKeloYZR1wjn3A",
+          "value": "If you don't make these jokes funny, Chuck Norris will run all the way around the world in a millasecond and roundhouse kick you in the face!"
+        },
+        {
+          "categories": [],
+          "created_at": "2020-01-05 13:42:28.984661",
+          "icon_url": "https://assets.chucknorris.host/img/avatar/chuck-norris.png",
+          "id": "4uGz2cWXQBa4Eg-tGtXGtA",
+          "updated_at": "2020-01-05 13:42:28.984661",
+          "url": "https://api.chucknorris.io/jokes/4uGz2cWXQBa4Eg-tGtXGtA",
+          "value": "Once I came up with a very funny Chuck Norris joke and decided to tell that to the Man himself before anyone else in the world. On hearing the joke Chuck Norris gave me a swift roundhouse kick to the side of my head, ever since I can't remember what that joke was."
+        },
+        {
+          "categories": [],
+          "created_at": "2020-01-05 13:42:29.296379",
+          "icon_url": "https://assets.chucknorris.host/img/avatar/chuck-norris.png",
+          "id": "hIKd_rcCR0erYahOXM19_g",
+          "updated_at": "2020-01-05 13:42:29.296379",
+          "url": "https://api.chucknorris.io/jokes/hIKd_rcCR0erYahOXM19_g",
+          "value": "Ever wonder why Curly disappeared from the Three Stooges? Chuck Norris did not find him funny."
+        },
+        {
+          "categories": [],
+          "created_at": "2020-01-05 13:42:29.296379",
+          "icon_url": "https://assets.chucknorris.host/img/avatar/chuck-norris.png",
+          "id": "nSq4-50SSYuoyuBi2yyZPQ",
+          "updated_at": "2020-01-05 13:42:29.296379",
+          "url": "https://api.chucknorris.io/jokes/nSq4-50SSYuoyuBi2yyZPQ",
+          "value": "Once Chuck Norris took a Vacation to the bahamas,he was watching oprah when she said somthing funny he pissed himself and laughed so hard is started hurracane katrina"
+        },
+        {
+          "categories": [
+            "explicit"
+          ],
+          "created_at": "2020-01-05 13:42:30.480041",
+          "icon_url": "https://assets.chucknorris.host/img/avatar/chuck-norris.png",
+          "id": "lCykfezoR3WGAQtHC_ojSQ",
+          "updated_at": "2020-01-05 13:42:30.480041",
+          "url": "https://api.chucknorris.io/jokes/lCykfezoR3WGAQtHC_ojSQ",
+          "value": "haha very funny brad why don't you go suck Chuck Norris' big dick fag"
+        }
+      ]
+    }
+  }
+}

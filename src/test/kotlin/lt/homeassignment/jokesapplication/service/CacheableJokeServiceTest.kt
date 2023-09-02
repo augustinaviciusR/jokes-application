@@ -5,14 +5,15 @@ import io.mockk.every
 import io.mockk.mockk
 import lt.homeassignment.jokesapplication.clients.JokeProvider
 import lt.homeassignment.jokesapplication.model.Joke
+import lt.homeassignment.jokesapplication.model.JokeApiException
 import lt.homeassignment.jokesapplication.model.JokeSearchResult
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNotNull
 
 internal class CacheableJokeServiceTest {
 
@@ -94,7 +95,7 @@ internal class CacheableJokeServiceTest {
         val categoryJokes = ConcurrentHashMap.newKeySet<Joke>()
         categoryJokes.add(scienceJoke)
         cacheableJokeService.getJokesCache()["science"] = categoryJokes
-        every { jokeProvider.getRandomJoke("science") } throws Exception("Failed to fetch joke")
+        every { jokeProvider.getRandomJoke("science") } throws JokeApiException("Failed to fetch joke")
 
         val result = cacheableJokeService.getJoke("science")
 
@@ -104,9 +105,8 @@ internal class CacheableJokeServiceTest {
     @Test
     fun `test getJoke with exception and no cached jokes`() {
         cacheableJokeService.getJokesCache().clear()
-        every { jokeProvider.getRandomJoke("science") } throws Exception("Failed to fetch joke")
-
-        assertFailsWith<Exception> {
+        every { jokeProvider.getRandomJoke("science") } throws JokeApiException("Failed to fetch joke")
+        assertThrows<JokeApiException> {
             cacheableJokeService.getJoke("science")
         }
     }

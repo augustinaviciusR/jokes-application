@@ -7,8 +7,8 @@ import lt.homeassignment.jokesapplication.model.Joke
 import lt.homeassignment.jokesapplication.model.JokeSearchResult
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
-import kotlin.test.Test
 
 class ChuckNorrisJokeClientTest {
 
