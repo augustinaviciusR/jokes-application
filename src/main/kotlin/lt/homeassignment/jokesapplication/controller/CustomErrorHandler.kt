@@ -1,20 +1,38 @@
 package lt.homeassignment.jokesapplication.controller
 
-import jakarta.validation.ConstraintViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.ServletWebRequest
 import java.io.IOException
+import com.fasterxml.jackson.databind.ObjectMapper
+import jakarta.validation.ConstraintViolationException
+
+data class ErrorResponse(
+    val status: Int,
+    val error: String,
+    val message: String
+)
 
 @ControllerAdvice
-class CustomErrorHandler {
+class CustomErrorHandler(private val objectMapper: ObjectMapper) {
+
     @ExceptionHandler(ConstraintViolationException::class)
-    @Throws(IOException::class)
     fun handleConstraintViolationException(
         exception: ConstraintViolationException,
         webRequest: ServletWebRequest
     ) {
-        webRequest.response!!.sendError(HttpStatus.BAD_REQUEST.value(), exception.message)
+        val response = webRequest.response!!
+        response.status = HttpStatus.BAD_REQUEST.value()
+        response.contentType = "application/json"
+
+        val errorResponse = ErrorResponse(
+            status = HttpStatus.BAD_REQUEST.value(),
+            error = "Bad Request",
+            message = exception.message ?: "Validation error"
+        )
+
+        val json = objectMapper.writeValueAsString(errorResponse)
+        response.writer.write(json)
     }
 }
