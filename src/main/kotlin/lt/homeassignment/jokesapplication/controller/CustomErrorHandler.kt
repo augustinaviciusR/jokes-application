@@ -1,12 +1,11 @@
 package lt.homeassignment.jokesapplication.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import jakarta.validation.ConstraintViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.ServletWebRequest
-import java.io.IOException
-import com.fasterxml.jackson.databind.ObjectMapper
-import jakarta.validation.ConstraintViolationException
 
 data class ErrorResponse(
     val status: Int,
