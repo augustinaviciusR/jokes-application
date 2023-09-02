@@ -1,0 +1,75 @@
+openapi: 3.0.0
+info:
+  title: Jokes Application API
+  version: "1.0"
+paths:
+  /v1/api/jokes/search:
+    get:
+      summary: Search for jokes based on a query
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 100
+          description: The search query for finding jokes.
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JokeSearchResult"
+
+  /v1/api/jokes:
+    get:
+      summary: Get a joke optionally based on a category
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+          description: The category of the joke you want to get.
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Joke"
+
+components:
+  schemas:
+    JokeSearchResult:
+      type: object
+      properties:
+        total:
+          type: integer
+        result:
+          type: array
+          items:
+            $ref: "#/components/schemas/Joke"
+    Joke:
+      type: object
+      properties:
+        id:
+          type: string
+        iconUrl:
+          type: string
+        createdAt:
+          type: string
+          format: "date-time"
+        updatedAt:
+          type: string
+          format: "date-time"
+        url:
+          type: string
+        value:
+          type: string
+        categories:
+          type: array
+          items:
+            type: string

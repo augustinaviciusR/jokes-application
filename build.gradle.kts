@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "lt.homeassignment"
-version = "0.0.1-SNAPSHOT"
+version = "latest"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -31,6 +31,7 @@ dependencies {
     implementation("io.github.microutils:kotlin-logging-jvm:2.0.11")
     implementation("net.logstash.logback:logstash-logback-encoder:6.6")
     implementation("ch.qos.logback:logback-classic:1.4.0")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.mockk:mockk:1.12.0")
     // Cucumber dependencies
